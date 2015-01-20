@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 
 public class BitmapMeshView extends View {
 
@@ -109,6 +110,8 @@ public class BitmapMeshView extends View {
             float fy = height / bitmapHeight * y;
             float longDisSide = touchY > height - touchY ? touchY : height - touchY;
             float longRatio = Math.abs(fy - touchY) / longDisSide;
+
+            longRatio = new AccelerateInterpolator().getInterpolation(longRatio);
 
             float realWidth = longRatio * (touchX - delayOffsetX);
 
