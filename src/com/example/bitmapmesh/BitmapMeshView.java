@@ -110,11 +110,11 @@ public class BitmapMeshView extends View {
             float longDisSide = touchY > height - touchY ? touchY : height - touchY;
             float longRatio = Math.abs(fy - touchY) / longDisSide;
 
-            float realWidth = longRatio * delayOffsetX;
+            float realWidth = longRatio * (touchX - delayOffsetX);
 
             for (int x = 0; x <= bitmapWidth; x++) {
 
-                verts[index * 2 + 0] = width * ratio / bitmapWidth * x;
+                verts[index * 2 + 0] = (width * ratio - (realWidth)) / bitmapWidth * x;
 
                 // float realHeight =
                 // x % 2 == 0 ? height : height
