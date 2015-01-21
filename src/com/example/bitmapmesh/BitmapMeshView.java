@@ -1,11 +1,11 @@
 package com.example.bitmapmesh;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -20,13 +20,15 @@ public class BitmapMeshView extends View {
     private int width, height;
     private int centerX, centerY;
 
-    private int bitmapWidth = 45;
-    private int bitmapHeight = 30;
+    private int bitmapWidth = 30;
+    private int bitmapHeight = 10;
 
     private int touchX;
     private int touchY;
 
     private final static int insDistance = 30;
+
+    private boolean newApiFlag;
 
     private int delayOffsetX;
 
@@ -49,15 +51,15 @@ public class BitmapMeshView extends View {
         this(context, attrs, 0);
     }
 
-    @SuppressLint("NewApi")
     public BitmapMeshView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image);
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.setLayerType(View.LAYER_TYPE_SOFTWARE, paint);
 
         handler.post(delayRunnable);
+
+        newApiFlag = Build.VERSION.SDK_INT >= 18;
     }
 
     @Override
