@@ -4,4 +4,9 @@
 
 
 无法显示阴影时的效果:
+
 ![art1](https://github.com/7heaven/bitmapMesh/blob/master/arts/arts1.gif)
+
+显示出阴影时的效果:
+
+![art2](https://github.com/7heaven/bitmapMesh/blob/master/arts/arts2.gif)
