@@ -7,6 +7,6 @@
 
 ![art1](https://github.com/7heaven/bitmapMesh/blob/master/arts/arts1.gif)
 
-显示出阴影时的效果:
+显示出阴影时的效果(由于gif对颜色的压缩，阴影效果显示不是很好):
 
 ![art2](https://github.com/7heaven/bitmapMesh/blob/master/arts/arts2.gif)
