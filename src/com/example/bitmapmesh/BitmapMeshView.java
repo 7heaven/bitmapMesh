@@ -74,6 +74,9 @@ public class BitmapMeshView extends View {
         interpolator = new AccelerateInterpolator();
 
         if (!newApiFlag) {
+
+            // 硬件加速不支持drawBitmapMesh的colors绘制的情况下,在原bitmap的上层覆盖一个半透明带阴影的bitmap以实现阴影功能
+
             shadowMask =
                     Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),
                             Bitmap.Config.ARGB_8888);
