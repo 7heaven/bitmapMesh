@@ -1,5 +1,6 @@
 package com.example.bitmapmesh;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -51,6 +52,7 @@ public class BitmapMeshView extends View {
         this(context, attrs, 0);
     }
 
+    @SuppressLint("NewApi")
     public BitmapMeshView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
@@ -60,6 +62,9 @@ public class BitmapMeshView extends View {
         handler.post(delayRunnable);
 
         newApiFlag = Build.VERSION.SDK_INT >= 18;
+        if (!newApiFlag) {
+            this.setLayerType(View.LAYER_TYPE_SOFTWARE, paint);
+        }
     }
 
     @Override
