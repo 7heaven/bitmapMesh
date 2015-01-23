@@ -5,10 +5,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Shader;
 import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -16,7 +19,9 @@ import android.view.animation.AccelerateInterpolator;
 public class BitmapMeshView extends View {
 
     private Bitmap bitmap;
+    private Bitmap shadowMask;
     private Paint paint;
+    private Shader maskShader;
 
     private int width, height;
     private int centerX, centerY;
@@ -32,6 +37,8 @@ public class BitmapMeshView extends View {
     private boolean newApiFlag;
 
     private int delayOffsetX;
+
+    private AccelerateInterpolator interpolator;
 
     private Handler handler = new Handler();
     private Runnable delayRunnable = new Runnable() {
@@ -62,8 +69,52 @@ public class BitmapMeshView extends View {
         handler.post(delayRunnable);
 
         newApiFlag = Build.VERSION.SDK_INT >= 18;
+
+        interpolator = new AccelerateInterpolator();
+
         if (!newApiFlag) {
-            this.setLayerType(View.LAYER_TYPE_SOFTWARE, paint);
+            shadowMask =
+                    Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),
+                            Bitmap.Config.ARGB_8888);
+
+            Canvas maskCanvas = new Canvas(shadowMask);
+
+            float singleWave = bitmap.getWidth() / bitmapWidth * 6.28F;
+            int blockPerWave = (int) (singleWave / (bitmap.getWidth() / bitmapWidth));
+
+            if (blockPerWave % 2 != 0)
+                blockPerWave++;
+
+            float offset =
+                    (float) ((bitmap.getWidth() / singleWave - Math.floor(bitmap.getWidth()
+                            / singleWave)) * singleWave);
+
+            int[] colors = new int[blockPerWave];
+            float[] offsets = new float[blockPerWave];
+
+            Log.d("singleWave:" + singleWave, "blockPerWave:" + blockPerWave);
+
+            int maxAlpha = 0x55;
+            int perAlpha = maxAlpha / (blockPerWave / 2);
+            float perOffset = 1.0F / blockPerWave;
+
+            for (int i = -blockPerWave / 2; i < blockPerWave / 2; i++) {
+                int ii = blockPerWave / 2 - Math.abs(i);
+                int iii = i + blockPerWave / 2;
+                colors[iii] = (perAlpha * ii) << 24;
+                offsets[iii] = perOffset * iii;
+
+                Log.d("index:" + i, "colors" + colors[iii] + ", offset:" + offsets[iii]);
+            }
+
+            maskShader =
+                    new LinearGradient(offset, 0, singleWave + offset, 0, colors, offsets,
+                            Shader.TileMode.REPEAT);
+
+            paint.setShader(maskShader);
+            maskCanvas.drawRect(0, 0, bitmap.getWidth(), bitmap.getHeight(), paint);
+            paint.setShader(null);
+
         }
     }
 
@@ -106,13 +157,14 @@ public class BitmapMeshView extends View {
         int index = 0;
 
         float ratio = (float) touchX / (float) width;
+        int alpha = 0;
         for (int y = 0; y <= bitmapHeight; y++) {
 
             float fy = height / bitmapHeight * y;
             float longDisSide = touchY > height - touchY ? touchY : height - touchY;
             float longRatio = Math.abs(fy - touchY) / longDisSide;
 
-            longRatio = new AccelerateInterpolator().getInterpolation(longRatio);
+            longRatio = interpolator.getInterpolation(longRatio);
 
             float realWidth = longRatio * (touchX - delayOffsetX);
 
@@ -123,9 +175,7 @@ public class BitmapMeshView extends View {
 
                 float gap = 60.0F * (1.0F - ratio);
 
-                float realHeight =
-                        height
-                                - ((float) Math.sin((x * (width / bitmapWidth)) * 0.5F) * gap + (gap / 2));
+                float realHeight = height - ((float) Math.sin((x * 2) * 0.5F) * gap + gap);
 
                 float offsetY = realHeight / bitmapHeight * y;
 
@@ -143,6 +193,9 @@ public class BitmapMeshView extends View {
                 int color;
 
                 int channel = 255 - (int) (height - realHeight) * 2;
+                if (channel < 255) {
+                    alpha = channel;
+                }
                 channel = channel < 0 ? 0 : channel;
                 channel = channel > 255 ? 255 : channel;
 
@@ -155,5 +208,13 @@ public class BitmapMeshView extends View {
         }
 
         canvas.drawBitmapMesh(bitmap, bitmapWidth, bitmapHeight, verts, 0, colors, 0, null);
+        if (!newApiFlag) {
+            alpha = 255 - (alpha * 10);
+            alpha = alpha > 255 ? 255 : alpha;
+            alpha = alpha < 0 ? 0 : alpha;
+            paint.setAlpha(alpha);
+            canvas.drawBitmapMesh(shadowMask, bitmapWidth, bitmapHeight, verts, 0, null, 0, paint);
+            paint.setAlpha(255);
+        }
     }
 }
