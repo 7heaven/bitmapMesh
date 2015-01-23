@@ -22,6 +22,7 @@ public class BitmapMeshView extends View {
     private Bitmap shadowMask;
     private Paint paint;
     private Shader maskShader;
+    private int maxAlpha = 0xFF;
 
     private int width, height;
     private int centerX, centerY;
@@ -82,7 +83,7 @@ public class BitmapMeshView extends View {
             float singleWave = bitmap.getWidth() / bitmapWidth * 6.28F;
             int blockPerWave = (int) (singleWave / (bitmap.getWidth() / bitmapWidth));
 
-            if (blockPerWave % 2 != 0)
+            if (blockPerWave % 2 == 0)
                 blockPerWave++;
 
             float offset =
@@ -94,17 +95,23 @@ public class BitmapMeshView extends View {
 
             Log.d("singleWave:" + singleWave, "blockPerWave:" + blockPerWave);
 
-            int maxAlpha = 0x55;
-            int perAlpha = maxAlpha / (blockPerWave / 2);
+
             float perOffset = 1.0F / blockPerWave;
 
-            for (int i = -blockPerWave / 2; i < blockPerWave / 2; i++) {
-                int ii = blockPerWave / 2 - Math.abs(i);
-                int iii = i + blockPerWave / 2;
-                colors[iii] = (perAlpha * ii) << 24;
+            int halfWave = (int) Math.floor((float) blockPerWave / 2.0F);
+
+            int perAlpha = maxAlpha / (halfWave - 1);
+
+            for (int i = -halfWave; i < halfWave + 1; i++) {
+                int ii = halfWave - Math.abs(i);
+                int iii = i + halfWave;
+                colors[iii] =
+                        (int) (perAlpha * Math.sin((float) ii / (float) blockPerWave * 3.14F)) << 24;
+
                 offsets[iii] = perOffset * iii;
 
-                Log.d("index:" + i, "colors" + colors[iii] + ", offset:" + offsets[iii]);
+                Log.d("index:" + i, "colors:0x" + Integer.toHexString(colors[iii]) + ", offset:"
+                        + offsets[iii]);
             }
 
             maskShader =
@@ -194,7 +201,7 @@ public class BitmapMeshView extends View {
 
                 int channel = 255 - (int) (height - realHeight) * 2;
                 if (channel < 255) {
-                    alpha = channel;
+                    alpha = (int) ((255 - channel) / 120.0F * maxAlpha) * 4;
                 }
                 channel = channel < 0 ? 0 : channel;
                 channel = channel > 255 ? 255 : channel;
@@ -209,7 +216,6 @@ public class BitmapMeshView extends View {
 
         canvas.drawBitmapMesh(bitmap, bitmapWidth, bitmapHeight, verts, 0, colors, 0, null);
         if (!newApiFlag) {
-            alpha = 255 - (alpha * 10);
             alpha = alpha > 255 ? 255 : alpha;
             alpha = alpha < 0 ? 0 : alpha;
             paint.setAlpha(alpha);
