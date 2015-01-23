@@ -56,7 +56,7 @@ public class BitmapMeshView extends View {
     public BitmapMeshView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.snipper);
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         handler.post(delayRunnable);
@@ -155,7 +155,7 @@ public class BitmapMeshView extends View {
 
                 int color;
 
-                int channel = 255 - (int) (height - realHeight);
+                int channel = 255 - (int) (height - realHeight) * 2;
                 channel = channel < 0 ? 0 : channel;
                 channel = channel > 255 ? 255 : channel;
 
