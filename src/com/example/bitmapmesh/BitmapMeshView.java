@@ -206,12 +206,14 @@ public class BitmapMeshView extends View {
                 if (channel < 255) {
                     alpha = (int) ((255 - channel) / 120.0F * maxAlpha) * 4;
                 }
-                channel = channel < 0 ? 0 : channel;
-                channel = channel > 255 ? 255 : channel;
+                if (newApiFlag) {
+                    channel = channel < 0 ? 0 : channel;
+                    channel = channel > 255 ? 255 : channel;
 
-                color = 0xFF000000 | channel << 16 | channel << 8 | channel;
+                    color = 0xFF000000 | channel << 16 | channel << 8 | channel;
 
-                colors[index] = color;
+                    colors[index] = color;
+                }
 
                 index += 1;
             }
