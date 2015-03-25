@@ -1,3 +1,5 @@
+##本repo只作演示，新项目地址[CurtainSlidingMenu](https://github.com/7heaven/CurtainSlidingMenu)
+
 # bitmapMesh
 
 未完成，~~由于开了硬件加速 drawBitmapMesh的参数colors在API18以下是不起作用的，所以API18以下的系统上是看不到窗帘的阴影的，正在解决这个问题~~
